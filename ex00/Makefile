@@ -2,21 +2,22 @@
 #    VARIABLES
 # **************************************************************************** #
 
-NAME 		:= megaphone
-FILETYPE	:= .cpp
-BUILDLOG	:= buildlog.txt
-ROOTDIR		:= .
+NAME 		:=	megaphone
+FILETYPE	:=	.cpp
+BUILDLOG	:=	buildlog.txt
+ROOTDIR		:=	.
 
-OBJSDIR		:= build
-INCSDIR		:= includes
-SRCSDIR		:= sources
-DEPSDIR		:= .deps
+OBJSDIR		:=	build
+INCSDIR		:=	includes
+SRCSDIR		:=	sources
+DEPSDIR		:=	.deps
 
 # **************************************************************************** #
 #    COMMANDS
 # **************************************************************************** #
 
-RM		:= rm -rf
+RM			:=	rm -rf
+CLR			:=	printf "\033c"
 
 # **************************************************************************** #
 #    COMPILATION
@@ -45,7 +46,7 @@ DEPENDDIR	:= $(addprefix $(ROOTDIR)/, $(DEPSDIR))
 
 SRCS	:= $(foreach src, $(SOURCES), $(shell find $(SOURCEDIR) -name $(src)))
 OBJS	:= $(patsubst $(SOURCEDIR)/%$(FILETYPE), $(BUILDDIR)/%.o, $(SRCS))
-DEPS	:= $(patsubst $(BUILDDIR)/%.o, $(DEPENDDIR)/%.d, $(OBJS))
+DEPS	:= $(patsubst $(SOURCEDIR)/%$(FILETYPE), $(DEPENDDIR)/%.d, $(SRCS))
 
 INCS	:= $(foreach hdr, $(ROOTDIR)/$(INCSDIR), -I $(hdr))
 
@@ -62,12 +63,15 @@ re: fclean all
 debug: CFLAGS += $(DBGFLAGS)
 debug: re
 
-run: re
+test: re
+	$(CLR)
+	$(ROOTDIR)/$(NAME) "shhhhh... I think the students are asleep..."
+	$(ROOTDIR)/$(NAME) Damnit " ! " "Sorry students, I thought this thing was off."
 	$(ROOTDIR)/$(NAME)
 
 .PHONY: all re
 .PHONY: debug
-.PHONY: run
+.PHONY: test
 
 # **************************************************************************** #
 #    BUILD
@@ -85,7 +89,9 @@ $1/%.o: %$(FILETYPE) | $(BUILDDIR) $(DEPENDDIR)
 		printf "$(Y)\n"; sed '$$d' $(BUILDLOG); \
 		printf "$(R)$(B)\n$(F)\nExiting...$(T)\n"; exit 1 ; \
 	else \
-		printf "$(C)$(B)☑$(T)$(V) $(CC) $(CFLAGS) $$<$ \n  $(C)⮑  $(G)$(B)$$@$(T)\n"; \
+		printf "$(C)$(B)Source:$(T)$(V) $$<$ $(T)\n"; \
+		printf "$(C)$(B)Flags:$(T)$(Y) $(CC) $(CFLAGS) $(T)\n"; \
+		printf "$(C)$(B)Build:$(T)$(G) $(B)$$@ $(T)\n"; \
 	fi
 endef
 
@@ -94,11 +100,11 @@ endef
 # **************************************************************************** #
 
 clean:
-	@printf "$(C)$(B)Removed $(T)$(V)$(BUILDDIR) $(DEPENDDIR) $(BUILDLOG)$(T)\n"
+	@printf "$(C)$(B)Removed: $(T)$(V)$(BUILDDIR) $(DEPENDDIR) $(BUILDLOG)$(T)\n"
 	@$(RM) $(BUILDDIR) $(DEPENDDIR) $(BUILDLOG)
 
 fclean: clean
-	@printf "$(C)$(B)Removed $(T)$(V)$(NAME)$(T)\n"
+	@printf "$(C)$(B)Removed: $(T)$(V)$(NAME)$(T)\n"
 	@$(RM) $(NAME)
 
 .PHONY: clean fclean
