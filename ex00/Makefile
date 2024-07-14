@@ -2,10 +2,10 @@
 #    VARIABLES
 # **************************************************************************** #
 
-NAME 		:= ex00
+NAME 		:= megaphone
 FILETYPE	:= .cpp
 BUILDLOG	:= buildlog.txt
-ROOOTDIR	:= .
+ROOTDIR		:= .
 
 OBJSDIR		:= build
 INCSDIR		:= includes
@@ -22,7 +22,7 @@ RM		:= rm -rf
 #    COMPILATION
 # **************************************************************************** #
 
-CC		:=	c++
+CC			:=	c++
 CFLAGS		:=	-Wall -Werror -Wextra
 DBGFLAGS	=	-g -fsanitize=address
 DEPFLAGS	=	-c -MT $$@ -MMD -MP -MF $(DEPSDIR)/$$*.d
@@ -44,10 +44,12 @@ BUILDDIR	:= $(addprefix $(ROOTDIR)/, $(OBJSDIR))
 DEPENDDIR	:= $(addprefix $(ROOTDIR)/, $(DEPSDIR))
 
 SRCS	:= $(foreach src, $(SOURCES), $(shell find $(SOURCEDIR) -name $(src)))
-OBJS	:= $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $(SRCS))
-DEPS	:= $(patsubst $(OBJSDIR)/%.o, $(DEPSDIR)/%.d, $(OBJS))
+OBJS	:= $(patsubst $(SOURCEDIR)/%$(FILETYPE), $(BUILDDIR)/%.o, $(SRCS))
+DEPS	:= $(patsubst $(BUILDDIR)/%.o, $(DEPENDDIR)/%.d, $(OBJS))
 
 INCS	:= $(foreach hdr, $(ROOTDIR)/$(INCSDIR), -I $(hdr))
+
+vpath %$(FILETYPE) $(SOURCEDIR)
 
 # **************************************************************************** #
 #    RULES
@@ -61,10 +63,11 @@ debug: CFLAGS += $(DBGFLAGS)
 debug: re
 
 run: re
-	./$(NAME)
+	$(ROOTDIR)/$(NAME)
 
 .PHONY: all re
-.PHONY: debug run
+.PHONY: debug
+.PHONY: run
 
 # **************************************************************************** #
 #    BUILD
@@ -74,7 +77,7 @@ $(NAME): $(OBJS)
 	@$(CC) $(CFLAGS) $(INCS) $^ -o $@
 
 define build_cmd
-$1/%.o: %.c | $(OBJSDIR) $(DEPSDIR)
+$1/%.o: %$(FILETYPE) | $(BUILDDIR) $(DEPENDDIR)
 	@if ! $(CC) $(CFLAGS) $(INCS) $(DEPFLAGS) $$< -o $$@ 2> $(BUILDLOG); then \
 		printf "$(R)$(B)\nERROR!\n$(F)$(T)\n"; \
 		printf "$(V)Unable to create object file:$(T)\n\n"; \
@@ -91,8 +94,8 @@ endef
 # **************************************************************************** #
 
 clean:
-	@printf "$(C)$(B)Removed $(T)$(V)$(OBJSDIR) $(DEPSDIR) $(BUILDLOG)$(T)\n"
-	@$(RM) $(OBJSDIR) $(DEPSDIR) $(BUILDLOG)
+	@printf "$(C)$(B)Removed $(T)$(V)$(BUILDDIR) $(DEPENDDIR) $(BUILDLOG)$(T)\n"
+	@$(RM) $(BUILDDIR) $(DEPENDDIR) $(BUILDLOG)
 
 fclean: clean
 	@printf "$(C)$(B)Removed $(T)$(V)$(NAME)$(T)\n"
@@ -117,10 +120,10 @@ Y	=	\033[33m
 #    UTILS
 # **************************************************************************** #
 
-$(OBJSDIR) $(DEPSDIR):
+$(BUILDDIR) $(DEPENDDIR):
 	@mkdir -p $@
 
 $(DEPS):
 	include $(wildcard $(DEPS))
 
-$(foreach build, $(OBJSDIR), $(eval $(call build_cmd, $(build))))
+$(foreach build, $(BUILDDIR), $(eval $(call build_cmd, $(build))))
