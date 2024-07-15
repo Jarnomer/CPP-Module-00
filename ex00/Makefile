@@ -1,52 +1,24 @@
-# **************************************************************************** #
-#    VARIABLES
-# **************************************************************************** #
-
 NAME 		:=	megaphone
-SRCSTYPE	:=	.cpp
 BUILDLOG	:=	build.log
-
-SRCSDIR		:=	.
-OBJSDIR		:=	build
-DEPSDIR		:=	.deps
-
-# **************************************************************************** #
-#    COMMANDS
-# **************************************************************************** #
+BUILDDIR	:=	build
+DEPENDDIR	:=	.deps
 
 RM			:=	rm -rf
-CL			:=	printf "\033c"
-
-# **************************************************************************** #
-#    COMPILATION
-# **************************************************************************** #
+SCREENCLEAR	:=	printf "\033c"
 
 CC			:=	c++
 CFLAGS		:=	-Wall -Werror -Wextra
 DBGFLAGS	=	-g -fsanitize=address
-DEPFLAGS	=	-c -MT $$@ -MMD -MP -MF $(DEPSDIR)/$$*.d
+DEPFLAGS	=	-c -MT $$@ -MMD -MP -MF \
+				$(DEPENDDIR)/$$*.d
 
-# **************************************************************************** #
-#    SOURCES
-# **************************************************************************** #
+SOURCES		:= megaphone.cpp
 
-SOURCES		:= megaphone
+SRCS	:= $(foreach s, $(SOURCES), $(shell find . -name $(s)))
+OBJS	:= $(patsubst ./%.cpp, ./$(BUILDDIR)/%.o, $(SRCS))
+DEPS	:= $(patsubst ./%.cpp, ./$(DEPENDDIR)/%.d, $(SRCS))
 
-SOURCES 	:= $(addsuffix $(SRCSTYPE), $(SOURCES))
-
-# **************************************************************************** #
-#    TARGETS
-# **************************************************************************** #
-
-SRCS	:= $(foreach src, $(SOURCES), $(shell find $(SRCSDIR) -name $(src)))
-OBJS	:= $(patsubst $(SRCSDIR)/%$(SRCSTYPE), $(SRCSDIR)/$(OBJSDIR)/%.o, $(SRCS))
-DEPS	:= $(patsubst $(SRCSDIR)/%$(SRCSTYPE), $(SRCSDIR)/$(DEPSDIR)/%.d, $(SRCS))
-
-vpath %$(SRCSTYPE) $(SRCSDIR)
-
-# **************************************************************************** #
-#    RULES
-# **************************************************************************** #
+vpath %.cpp .
 
 all: $(NAME)
 
@@ -56,24 +28,29 @@ debug: CFLAGS += $(DBGFLAGS)
 debug: re
 
 run: all
-	$(CL)
-	$(SRCSDIR)/$(NAME) "shhhhh... I think the students are asleep..."
-	$(SRCSDIR)/$(NAME) Damnit " ! " "Sorry students, I thought this thing was off."
-	$(SRCSDIR)/$(NAME)
+	@$(SCREENCLEAR)
+	./$(NAME) "shhhhh... I think the students are asleep..."
+	./$(NAME) Damnit " ! " "Sorry students, I thought this thing was off."
+	./$(NAME)
+
+clean:
+	@printf "$(R)$(B)Delete: $(T)$(Y)$(DEPENDDIR) $(BUILDDIR) $(BUILDLOG)$(T)\n"
+	@$(RM) $(DEPENDDIR) $(BUILDDIR)  $(BUILDLOG)
+
+fclean: clean
+	@printf "$(R)$(B)Delete: $(T)$(Y)$(NAME)$(T)\n"
+	@$(RM) $(NAME)
 
 .PHONY: all re
-.PHONY: debug
-.PHONY: run
-
-# **************************************************************************** #
-#    BUILD
-# **************************************************************************** #
+.PHONY: clean fclean
+.PHONY: debug run
 
 $(NAME): $(OBJS)
-	@$(CC) $(CFLAGS) $(INCS) $^ -o $@
+	@$(CC) $(CFLAGS) $^ -o $@
+	@printf "$(C)$(B)Binary:$(T)$(Y) $@\n"
 
 define build_cmd
-$1/%.o: %$(SRCSTYPE) | $(OBJSDIR) $(DEPSDIR)
+$1/%.o: %.cpp | $(BUILDDIR) $(DEPENDDIR)
 	@if ! $(CC) $(CFLAGS) $(DEPFLAGS) $$< -o $$@ 2> $(BUILDLOG); then \
 		printf "$(R)$(B)\nERROR!\n$(F)$(T)\n"; \
 		printf "$(V)Unable to create object file:$(T)\n\n"; \
@@ -81,47 +58,22 @@ $1/%.o: %$(SRCSTYPE) | $(OBJSDIR) $(DEPSDIR)
 		printf "$(Y)\n"; sed '$$d' $(BUILDLOG); \
 		printf "$(R)$(B)\n$(F)\nExiting...$(T)\n"; exit 1 ; \
 	else \
-		printf "$(C)$(B)Build:$(T)$(V) $$<$\
-		$(Y) [$(CC) $(CFLAGS)]\
-		$(R)->$(G) $$@ $(T)\n"; \
+		printf "$(C)$(B)Object:$(T)$(V) $$<$ $(R) ->$(G) $$@ $(T)\n"; \
 	fi
 endef
 
-# **************************************************************************** #
-#    CLEAN
-# **************************************************************************** #
-
-clean:
-	@printf "$(C)$(B)Delete: $(T)$(V)$(OBJSDIR) $(DEPSDIR) $(BUILDLOG)$(T)\n"
-	@$(RM) $(OBJSDIR) $(DEPSDIR) $(BUILDLOG)
-
-fclean: clean
-	@printf "$(C)$(B)Delete: $(T)$(V)$(NAME)$(T)\n"
-	@$(RM) $(NAME)
-
-.PHONY: clean fclean
-
-# **************************************************************************** #
-#    FORMAT
-# **************************************************************************** #
-
-F	=	=================================
-B	=	\033[1m
 T	=	\033[0m
+B	=	\033[1m
 G	=	\033[32m
 V	=	\033[35m
 C	=	\033[36m
-R	=	\033[31m
 Y	=	\033[33m
+R	=	\033[31m
 
-# **************************************************************************** #
-#    UTILS
-# **************************************************************************** #
-
-$(OBJSDIR) $(DEPSDIR):
+$(BUILDDIR) $(DEPENDDIR):
 	@mkdir -p $@
 
 $(DEPS):
 	include $(wildcard $(DEPS))
 
-$(foreach build, $(OBJSDIR), $(eval $(call build_cmd, $(build))))
+$(foreach build, $(BUILDDIR), $(eval $(call build_cmd, $(build))))
