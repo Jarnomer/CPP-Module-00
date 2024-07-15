@@ -2,8 +2,9 @@
 #    VARIABLES
 # **************************************************************************** #
 
-NAME 		:=	megaphone
+NAME 		:=	phonebook
 SRCSTYPE	:=	.cpp
+HDRSTYPE	:=	.hpp
 BUILDLOG	:=	build.log
 
 SRCSDIR		:=	.
@@ -30,9 +31,13 @@ DEPFLAGS	=	-c -MT $$@ -MMD -MP -MF $(DEPSDIR)/$$*.d
 #    SOURCES
 # **************************************************************************** #
 
-SOURCES		:= megaphone
+SOURCES		:= main
 
 SOURCES 	:= $(addsuffix $(SRCSTYPE), $(SOURCES))
+
+HEADERS		:=
+
+HEADERS 	:= $(addsuffix $(HDRSTYPE), $(HEADERS))
 
 # **************************************************************************** #
 #    TARGETS
@@ -41,6 +46,9 @@ SOURCES 	:= $(addsuffix $(SRCSTYPE), $(SOURCES))
 SRCS	:= $(foreach src, $(SOURCES), $(shell find $(SRCSDIR) -name $(src)))
 OBJS	:= $(patsubst $(SRCSDIR)/%$(SRCSTYPE), $(SRCSDIR)/$(OBJSDIR)/%.o, $(SRCS))
 DEPS	:= $(patsubst $(SRCSDIR)/%$(SRCSTYPE), $(SRCSDIR)/$(DEPSDIR)/%.d, $(SRCS))
+
+INCS	:= $(foreach hdr, $(HEADERS), $(shell find $(SRCSDIR) -name $(hdr)))
+INCS	:= $(foreach hdr, $(HEADERS), -I $(hdr))
 
 vpath %$(SRCSTYPE) $(SRCSDIR)
 
@@ -55,11 +63,8 @@ re: fclean all
 debug: CFLAGS += $(DBGFLAGS)
 debug: re
 
-run: all
-	$(CL)
-	$(SRCSDIR)/$(NAME) "shhhhh... I think the students are asleep..."
-	$(SRCSDIR)/$(NAME) Damnit " ! " "Sorry students, I thought this thing was off."
-	$(SRCSDIR)/$(NAME)
+run: re
+	$(CL) && $(SRCSDIR)/$(NAME)
 
 .PHONY: all re
 .PHONY: debug
@@ -74,7 +79,7 @@ $(NAME): $(OBJS)
 
 define build_cmd
 $1/%.o: %$(SRCSTYPE) | $(OBJSDIR) $(DEPSDIR)
-	@if ! $(CC) $(CFLAGS) $(DEPFLAGS) $$< -o $$@ 2> $(BUILDLOG); then \
+	@if ! $(CC) $(CFLAGS) $(INCS) $(DEPFLAGS) $$< -o $$@ 2> $(BUILDLOG); then \
 		printf "$(R)$(B)\nERROR!\n$(F)$(T)\n"; \
 		printf "$(V)Unable to create object file:$(T)\n\n"; \
 		printf "$(R)$(B)$$@$(T)\n"; \
