@@ -3,8 +3,7 @@
 # **************************************************************************** #
 
 NAME 		:=	phonebook
-SRCSTYPE	:=	.cpp
-HDRSTYPE	:=	.hpp
+FILETYPE	:=	.cpp
 BUILDLOG	:=	build.log
 
 SRCSDIR		:=	.
@@ -31,26 +30,21 @@ DEPFLAGS	=	-c -MT $$@ -MMD -MP -MF $(DEPSDIR)/$$*.d
 #    SOURCES
 # **************************************************************************** #
 
-SOURCES		:= main
+SOURCES		:= main \
+			   PhoneBook \
+			   Contact
 
-SOURCES 	:= $(addsuffix $(SRCSTYPE), $(SOURCES))
-
-HEADERS		:=
-
-HEADERS 	:= $(addsuffix $(HDRSTYPE), $(HEADERS))
+SOURCES 	:= $(addsuffix $(FILETYPE), $(SOURCES))
 
 # **************************************************************************** #
 #    TARGETS
 # **************************************************************************** #
 
 SRCS	:= $(foreach src, $(SOURCES), $(shell find $(SRCSDIR) -name $(src)))
-OBJS	:= $(patsubst $(SRCSDIR)/%$(SRCSTYPE), $(SRCSDIR)/$(OBJSDIR)/%.o, $(SRCS))
-DEPS	:= $(patsubst $(SRCSDIR)/%$(SRCSTYPE), $(SRCSDIR)/$(DEPSDIR)/%.d, $(SRCS))
+OBJS	:= $(patsubst $(SRCSDIR)/%$(FILETYPE), $(SRCSDIR)/$(OBJSDIR)/%.o, $(SRCS))
+DEPS	:= $(patsubst $(SRCSDIR)/%$(FILETYPE), $(SRCSDIR)/$(DEPSDIR)/%.d, $(SRCS))
 
-INCS	:= $(foreach hdr, $(HEADERS), $(shell find $(SRCSDIR) -name $(hdr)))
-INCS	:= $(foreach hdr, $(HEADERS), -I $(hdr))
-
-vpath %$(SRCSTYPE) $(SRCSDIR)
+vpath %$(FILETYPE) $(SRCSDIR)
 
 # **************************************************************************** #
 #    RULES
@@ -63,7 +57,7 @@ re: fclean all
 debug: CFLAGS += $(DBGFLAGS)
 debug: re
 
-run: re
+run: all
 	$(CL) && $(SRCSDIR)/$(NAME)
 
 .PHONY: all re
@@ -75,11 +69,12 @@ run: re
 # **************************************************************************** #
 
 $(NAME): $(OBJS)
-	@$(CC) $(CFLAGS) $(INCS) $^ -o $@
+	@$(CC) $(CFLAGS) $^ -o $@
+	@printf "$(C)$(B)Finish:$(T)$(V) $@"
 
 define build_cmd
-$1/%.o: %$(SRCSTYPE) | $(OBJSDIR) $(DEPSDIR)
-	@if ! $(CC) $(CFLAGS) $(INCS) $(DEPFLAGS) $$< -o $$@ 2> $(BUILDLOG); then \
+$1/%.o: %$(FILETYPE) | $(OBJSDIR) $(DEPSDIR)
+	@if ! $(CC) $(CFLAGS) $(DEPFLAGS) $$< -o $$@ 2> $(BUILDLOG); then \
 		printf "$(R)$(B)\nERROR!\n$(F)$(T)\n"; \
 		printf "$(V)Unable to create object file:$(T)\n\n"; \
 		printf "$(R)$(B)$$@$(T)\n"; \
