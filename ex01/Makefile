@@ -31,7 +31,7 @@ debug: re
 
 run: all
 	$(SCREENCLEAR)
-	./$(NAME)
+	@./$(NAME)
 
 clean:
 	@printf "$(R)$(B)Delete: $(T)$(Y)$(DEPENDDIR) $(BUILDDIR) $(BUILDLOG)$(T)\n"

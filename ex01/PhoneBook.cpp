@@ -1,19 +1,24 @@
 #include "PhoneBook.hpp"
 
-void PhoneBook::run(void) {
-  std::string cmd;
+#include <iostream>
+
+using std::cin;
+using std::cout;
+
+void PhoneBook::loop(void) {
+  string cmd;
 
   while (true) {
-    std::cout << "Enter command: ";
-    std::cin >> cmd;
-    if (!cmd.compare("ADD"))
-      std::cout << "Need to add";
-    else if (!cmd.compare("SEARCH"))
-      std::cout << "Need to search";
-    else if (!cmd.compare("EXIT"))
+    cout << "Enter command: ";
+    cin >> cmd;
+    if (cmd == "ADD")
+      cout << "Need to add";
+    else if (cmd == "SEARCH")
+      cout << "Need to search";
+    else if (cmd == "EXIT")
       break;
     else
-      std::cout << "Invalid command";
-    std::cout << std::endl;
+      cout << "Invalid command";
+    cout << std::endl;
   }
 }
