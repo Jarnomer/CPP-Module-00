@@ -1,6 +1,6 @@
 #include "PhoneBook.hpp"
 
 int main(void) {
-  PhoneBook::run();
+  PhoneBook::loop();
   return 0;
 }

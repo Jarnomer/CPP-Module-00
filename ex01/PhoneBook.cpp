@@ -1,8 +1,6 @@
 #include "PhoneBook.hpp"
-#include <iostream>
-#include <string>
 
-void run(void) {
+void PhoneBook::run(void) {
   std::string cmd;
 
   while (true) {

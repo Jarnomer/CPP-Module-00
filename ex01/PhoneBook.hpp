@@ -5,11 +5,11 @@
 
 class PhoneBook {
 private:
-  static const int max = 8;
+  const int max = 8;
   Contact contacts[max];
 
 public:
-  static void run(void);
+  void loop(void);
 };
 
 #endif

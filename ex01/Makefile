@@ -7,7 +7,7 @@ RM			:=	rm -rf
 SCREENCLEAR	:=	printf "\033c"
 
 CC			:=	c++
-CFLAGS		:=	-Wall -Werror -Wextra
+CFLAGS		:=	-Wall -Werror -Wextra -std=c++11
 DBGFLAGS	=	-g -fsanitize=address
 DEPFLAGS	=	-c -MT $$@ -MMD -MP -MF \
 				$(DEPENDDIR)/$$*.d
@@ -30,8 +30,8 @@ debug: CFLAGS += $(DBGFLAGS)
 debug: re
 
 run: all
-	@$(SCREENCLEAR)
-	@./$(NAME)
+	$(SCREENCLEAR)
+	./$(NAME)
 
 clean:
 	@printf "$(R)$(B)Delete: $(T)$(Y)$(DEPENDDIR) $(BUILDDIR) $(BUILDLOG)$(T)\n"
@@ -52,13 +52,12 @@ $(NAME): $(OBJS)
 define build_cmd
 $1/%.o: %.cpp | $(BUILDDIR) $(DEPENDDIR)
 	@if ! $(CC) $(CFLAGS) $(DEPFLAGS) $$< -o $$@ 2> $(BUILDLOG); then \
-		printf "$(R)$(B)\nERROR!\n$(F)$(T)\n"; \
-		printf "$(V)Unable to create object file:$(T)\n\n"; \
-		printf "$(R)$(B)$$@$(T)\n"; \
-		printf "$(Y)\n"; sed '$$d' $(BUILDLOG); \
-		printf "$(R)$(B)\n$(F)\nExiting...$(T)\n"; exit 1 ; \
+		printf "$(R)$(B)\nError: \
+		$(V)Unable to create object file: \
+		$(R)$(B)$$@$(Y)\n\n"; \
+		sed '$$d' $(BUILDLOG); exit 1 ; \
 	else \
-		printf "$(C)$(B)Object:$(T)$(V) $$<$ $(R) ->$(G) $$@ $(T)\n"; \
+		printf "$(C)$(B)Object:$(T)$(V) $$<$ $(R) ->$(G)$(B) $$@ $(T)\n"; \
 	fi
 endef
 
