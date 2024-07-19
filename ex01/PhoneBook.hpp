@@ -3,13 +3,16 @@
 
 #include "Contact.hpp"
 
+#define MAX_CONTACTS 8
+
 class PhoneBook {
 private:
-  static const int max = 8;
-  Contact contacts[max];
+  Contact contacts[8];
 
 public:
   static void loop(void);
+  void add_contact();
+  void search_contact();
 };
 
 #endif
