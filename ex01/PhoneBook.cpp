@@ -1,45 +1,28 @@
 #include "PhoneBook.hpp"
 
-#include <iostream>
-
-using std::cin;
-using std::cout;
-using std::endl;
-
-void PhoneBook::search_contact(void) {
-  for (int i = 0; i < MAX_CONTACTS; i++) {
-    cout << this->contacts[i].get_first_name();
-    cout << this->contacts[i].get_last_name();
-    cout << this->contacts[i].get_nick_name();
-    cout << this->contacts[i].get_phone_number();
-    cout << this->contacts[i].get_darkest_secret();
+static bool ft_valid_index(string str) {
+  if (str.length() > 1) {
+    return false;
+  } else if (str == "8" || str == "9") {
+    return false;
   }
+  return true;
 }
 
-static bool ft_is_all_digits(string str) {
+static bool ft_all_digits(string str) {
   for (char c : str)
     if (!std::isdigit(c))
       return (false);
   return (true);
 }
 
-static string get_number(string str) {
-  string input;
-
-  while (true) {
-    cout << "Enter " << str << ": ";
-    getline(cin, input);
-    if (cin.eof()) {
-      exit(EXIT_FAILURE);
-    } else if (input.empty()) {
-      cout << "Input can't be empty" << endl;
-      continue;
-    } else if (!ft_is_all_digits(input)) {
-      cout << "Input must be all digits" << endl;
-      continue;
-    }
-    return input;
-  }
+static bool ft_empty_input(string str) {
+  if (str.empty())
+    return (true);
+  for (char c : str)
+    if (std::isprint(c) && !std::isspace(c))
+      return (false);
+  return (true);
 }
 
 static string get_input(string str) {
@@ -50,12 +33,59 @@ static string get_input(string str) {
     getline(cin, input);
     if (cin.eof()) {
       exit(EXIT_FAILURE);
-    } else if (input.empty()) {
-      cout << "Input can't be empty" << endl;
+    } else if (ft_empty_input(input)) {
+      cout << ERR_EMPTY << endl;
       continue;
     }
     return input;
   }
+}
+
+static string get_number(string str) {
+  string input;
+
+  while (true) {
+    input = get_input(str);
+    if (!ft_all_digits(input)) {
+      cout << ERR_DIGIT << endl;
+      continue;
+    }
+    return input;
+  }
+}
+
+static string get_index(string str) {
+  string input;
+
+  while (true) {
+    input = get_number(str);
+    if (!ft_valid_index(input)) {
+      cout << ERR_RANGE << endl;
+      continue;
+    }
+    return input;
+  }
+}
+
+static void print_header(void) {
+  cout << "|" << std::right << std::setw(10) << "INDEX" ;
+  cout << "|" << std::right << std::setw(10) << "FORENAME";
+  cout << "|" << std::right << std::setw(10) << "LAST NAME";
+  cout << "|" << std::right << std::setw(10) << "NICKNAME";
+  cout << "|" << endl;
+}
+
+void PhoneBook::search_contact(void) {
+  string input;
+  int i;
+
+  print_header();
+  for (int i = 0; i < MAX_CONTACTS; i++) {
+    this->contacts[i].contact_name_info(i);
+  }
+  input = get_index("index");
+  i = input[0] - '0';
+  this->contacts[i].contact_full_info();
 }
 
 void PhoneBook::add_contact() {
@@ -80,7 +110,7 @@ void PhoneBook::loop(void) {
       exit(EXIT_FAILURE);
     } else if (command == "EXIT") {
       exit(EXIT_SUCCESS);
-    } else if (command.empty()) {
+    } else if (ft_empty_input(command)) {
       continue;
     } else if (command == "ADD")
       pb.add_contact();
