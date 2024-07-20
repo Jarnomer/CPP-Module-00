@@ -59,6 +59,7 @@ $1/%.o: %.cpp | $(BUILDDIR) $(DEPENDDIR)
 	else \
 		printf "$(C)$(B)Object:$(T)$(V) $$<$ $(R) ->$(G)$(B) $$@ $(T)\n"; \
 	fi
+endef
 
 T	=	\033[0m
 B	=	\033[1m
