@@ -68,11 +68,17 @@ static string get_index(string str) {
 }
 
 static void print_header(void) {
-  cout << "|" << std::right << std::setw(10) << "INDEX" ;
-  cout << "|" << std::right << std::setw(10) << "FORENAME";
-  cout << "|" << std::right << std::setw(10) << "LAST NAME";
-  cout << "|" << std::right << std::setw(10) << "NICKNAME";
+  cout << "---------------------------------------------" << endl;
+  cout << "|" << std::left << std::setw(40)
+       << "     ############CONTACTS############      ";
   cout << "|" << endl;
+  cout << "---------------------------------------------" << endl;
+  cout << "|" << std::right << std::setw(10) << "INDEX";
+  cout << "|" << std::right << std::setw(10) << "FIRST NAME";
+  cout << "|" << std::right << std::setw(10) << "LAST NAME";
+  cout << "|" << std::right << std::setw(10) << "NICK NAME";
+  cout << "|" << endl;
+  cout << "---------------------------------------------" << endl;
 }
 
 void PhoneBook::search_contact(void) {
@@ -83,6 +89,7 @@ void PhoneBook::search_contact(void) {
   for (int i = 0; i < MAX_CONTACTS; i++) {
     this->contacts[i].contact_name_info(i);
   }
+  cout << "---------------------------------------------" << endl;
   input = get_index("index");
   i = input[0] - '0';
   this->contacts[i].contact_full_info();
