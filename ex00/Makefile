@@ -7,7 +7,7 @@ RM			:=	rm -rf
 SCREENCLEAR	:=	printf "\033c"
 
 CC			:=	c++
-CFLAGS		:=	-Wall -Werror -Wextra
+CFLAGS		:=	-std=c++11 -Wall -Werror -Wextra
 DBGFLAGS	=	-g -fsanitize=address
 DEPFLAGS	=	-c -MT $$@ -MMD -MP -MF \
 				$(DEPENDDIR)/$$*.d
